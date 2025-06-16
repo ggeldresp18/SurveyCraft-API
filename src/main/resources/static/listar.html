@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Listar Encuestas</title>
+</head>
+<body>
+<h1>Listar Encuestas</h1>
+
+<select id="encuestaSelect">
+    <option value="">Seleccionar encuesta</option>
+</select>
+
+<button id="responderBtn">Responder</button>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var nombre = localStorage.getItem("nombre");
+        var email = localStorage.getItem("email");
+
+        console.log("Nombre: " + nombre);
+        console.log("Email: " + email);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const nombreUrl = urlParams.get('nombre');
+        const apellido = urlParams.get('apellido');
+
+        function obtenerEncuestas() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/encuesta/listar", true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    mostrarEncuestas(response);
+                }
+            };
+            xhr.send();
+        }
+
+        function obtenerPreguntas(encuestaId) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/encuesta/mostrar/" + encuestaId, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    abrirNuevaPestana(response);
+                }
+            };
+            xhr.send();
+        }
+
+        function mostrarEncuestas(encuestas) {
+            var encuestaSelect = document.getElementById("encuestaSelect");
+            encuestaSelect.innerHTML = "<option value=''>Seleccionar encuesta</option>";
+
+            encuestas.forEach(function(encuesta) {
+                var option = document.createElement("option");
+                option.value = encuesta.id;
+                option.textContent = encuesta.nombre;
+                encuestaSelect.appendChild(option);
+            });
+        }
+
+        document.getElementById("encuestaSelect").addEventListener("change", function() {
+            var encuestaId = this.value;
+
+            if (encuestaId) {
+                obtenerPreguntas(encuestaId);
+            }
+        });
+
+        document.getElementById("responderBtn").addEventListener("click", function() {
+            var encuestaId = document.getElementById("encuestaSelect").value;
+            if (encuestaId) {
+                window.location.href = "preguntas.html?nombre=" + nombre + "&apellido=" + apellido + "&encuestaId=" + encuestaId;
+            } else {
+                console.log("No se seleccionó ninguna encuesta.");
+            }
+        });
+
+        obtenerEncuestas();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LUC</title>
+</head>
+<body>
+<h1>Hola (sin ofender)</h1><br>
+<h2>Registrar encuesta:</h2>
+<button onclick="registrar()">REGISTRAR</button>
+<h2>Responder encuesta:</h2>
+<button onclick="responder()">RESPONDER</button>
+
+<script>
+    const express = require('express');
+    const app = express();
+    const path = require('path');
+
+    app.get('/encuesta', (req, res) => {
+        res.sendFile(path.join(__dirname, 'index.html'));
+    });
+
+    app.listen(8080, () => {
+        console.log('Servidor web en funcionamiento en http://localhost:8080');
+    });
+
+
+    function registrar() {
+        window.location.href = "registrar.html";
+    }
+    function responder(){
+        window.location.href = "login.html";
+    }
+</script>
+</body>
+</html>

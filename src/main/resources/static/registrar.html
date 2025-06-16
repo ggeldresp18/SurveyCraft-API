@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Encuesta</title>
+</head>
+<body>
+<h2>Registro de Encuesta</h2>
+
+<form id="encuestaForm">
+    <label for="encuestaNombre">Nombre de la encuesta:</label>
+    <input type="text" id="encuestaNombre" name="encuesta.nombre" required><br><br>
+
+    <h3>Preguntas:</h3>
+    <div id="preguntasContainer">
+        <div class="pregunta">
+            <label for="pregunta1">Pregunta:</label>
+            <input type="text" id="pregunta1" class="preguntaInput" name="preguntas[0].pregunta" required>
+
+            <label for="opcion1-cantidad">Cantidad de opciones:</label>
+            <input type="number" id="opcion1-cantidad" class="opcionCantidadInput" min="1" required>
+
+            <button type="button" class="agregarOpcionesBtn">Agregar Opciones</button><br><br>
+
+            <div class="opcionesContainer"></div>
+            <br>
+        </div>
+    </div>
+
+    <button type="button" id="agregarPreguntaBtn">Agregar Pregunta</button>
+    <br><br>
+    <button type="button" onclick="registrarEncuesta()">Registrar Encuesta</button>
+    <br><br>
+    <button type="button" onclick="volver()">Volver al inicio</button>
+</form>
+
+<div id="myModal" style="display: none;">
+    <div>
+        <p>¡Encuesta registrada exitosamente!</p>
+        <button onclick="redireccionar()">Ir a otra página</button>
+    </div>
+</div>
+
+<script>
+    const agregarPreguntaBtn = document.getElementById("agregarPreguntaBtn");
+    const preguntasContainer = document.getElementById("preguntasContainer");
+    let preguntaCount = 1;
+
+    agregarPreguntaBtn.addEventListener("click", () => {
+        const preguntaDiv = document.createElement("div");
+        preguntaDiv.classList.add("pregunta");
+
+        const preguntaLabel = document.createElement("label");
+        preguntaLabel.textContent = `Pregunta ${preguntaCount + 1}:`;
+        preguntaLabel.setAttribute("for", `pregunta${preguntaCount + 1}`);
+        preguntaDiv.appendChild(preguntaLabel);
+
+        const preguntaInput = document.createElement("input");
+        preguntaInput.setAttribute("type", "text");
+        preguntaInput.setAttribute("id", `pregunta${preguntaCount + 1}`);
+        preguntaInput.classList.add("preguntaInput");
+        preguntaInput.required = true;
+        preguntaDiv.appendChild(preguntaInput);
+
+        const opcionCantidadLabel = document.createElement("label");
+        opcionCantidadLabel.textContent = "Cantidad de opciones:";
+        preguntaDiv.appendChild(opcionCantidadLabel);
+
+        const opcionCantidadInput = document.createElement("input");
+        opcionCantidadInput.setAttribute("type", "number");
+        opcionCantidadInput.classList.add("opcionCantidadInput");
+        opcionCantidadInput.setAttribute("min", "1");
+        opcionCantidadInput.required = true;
+        preguntaDiv.appendChild(opcionCantidadInput);
+
+        const agregarOpcionesBtn = document.createElement("button");
+        agregarOpcionesBtn.setAttribute("type", "button");
+        agregarOpcionesBtn.classList.add("agregarOpcionesBtn");
+        agregarOpcionesBtn.textContent = "Agregar Opciones";
+        preguntaDiv.appendChild(agregarOpcionesBtn);
+
+        const opcionesContainer = document.createElement("div");
+        opcionesContainer.classList.add("opcionesContainer");
+        preguntaDiv.appendChild(opcionesContainer);
+
+        preguntasContainer.appendChild(preguntaDiv);
+
+        preguntaCount++;
+    });
+
+    preguntasContainer.addEventListener("click", (event) => {
+        if (event.target.classList.contains("agregarOpcionesBtn")) {
+            const preguntaDiv = event.target.closest(".pregunta");
+            const opcionCantidadInput = preguntaDiv.querySelector(".opcionCantidadInput");
+            const opcionesContainer = preguntaDiv.querySelector(".opcionesContainer");
+
+            const opcionCantidad = parseInt(opcionCantidadInput.value);
+            opcionesContainer.innerHTML = "";
+
+            for (let i = 0; i < opcionCantidad; i++) {
+                const opcionLabel = document.createElement("label");
+                opcionLabel.textContent = `Opción ${i + 1}:`;
+                opcionesContainer.appendChild(opcionLabel);
+
+                const opcionInput = document.createElement("input");
+                opcionInput.setAttribute("type", "text");
+                opcionInput.required = true;
+                opcionesContainer.appendChild(opcionInput);
+
+                opcionesContainer.appendChild(document.createElement("br"));
+                opcionesContainer.appendChild(document.createElement("br"));
+            }
+        }
+    });
+
+    function registrarEncuesta() {
+        const nombreEncuesta = document.getElementById("encuestaNombre").value;
+        const preguntas = [];
+        const preguntaDivs = document.querySelectorAll(".pregunta");
+
+        preguntaDivs.forEach(div => {
+            const preguntaTexto = div.querySelector(".preguntaInput").value;
+            const opcionInputs = div.querySelectorAll(".opcionesContainer input");
+            const opciones = Array.from(opcionInputs).map(input => input.value);
+
+            preguntas.push({
+                pregunta: preguntaTexto,
+                opciones: opciones
+            });
+        });
+
+        const payload = {
+            encuesta: {
+                nombre: nombreEncuesta
+            },
+            preguntas: preguntas
+        };
+
+        fetch("/encuesta/registrar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (res.ok) {
+                mostrarMensaje();
+            } else {
+                alert("Error al registrar la encuesta");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error de red");
+        });
+    }
+
+    function mostrarMensaje() {
+        document.getElementById("myModal").style.display = "block";
+    }
+
+    function redireccionar() {
+        window.location.href = "otra_pagina.html";
+    }
+
+    function volver() {
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
+

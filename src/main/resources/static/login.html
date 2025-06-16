@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+<h1>Login</h1>
+
+<form id="registroForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" required>
+
+    <label for="email">Email:</label>
+    <input type="text" id="email" required>
+
+    <button type="submit">Registrar</button>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var nombreInput = document.getElementById("nombre");
+        var emailInput = document.getElementById("email");
+
+        document.getElementById("registroForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var nombre = nombreInput.value;
+            var email = emailInput.value;
+
+            localStorage.setItem("nombre", nombre);
+            localStorage.setItem("email", email);
+
+            window.location.href = "listar.html";
+        });
+    });
+</script>
+</body>
+</html>
+
